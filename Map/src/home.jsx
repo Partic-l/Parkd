@@ -2,6 +2,8 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import { useState, useEffect } from 'react'
 import { useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
+import { supabase } from './supabaseClient';
+import { useNavigate } from 'react-router'
 
 import markerIconUrl from "../node_modules/leaflet/dist/images/marker-icon.png";
 import markerIconRetinaUrl from "../node_modules/leaflet/dist/images/marker-icon-2x.png";
@@ -14,6 +16,20 @@ function MoveAttribution() {
         map.attributionControl.setPosition('topright');
     }, [map]);
     return null;
+}
+
+function VerifyUser() {
+    const navigate = useNavigate()
+    useEffect(() => {
+        async function checkUser() {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                navigate('/login')
+            }
+        }
+        checkUser()
+    }, []);
+    return null
 }
 
 function LocationMarker() {
@@ -43,26 +59,20 @@ export default function Home() {
     L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
     L.Icon.Default.imagePath = "";
     return (
-        <MapContainer
-            center={{ lat: 51.505, lng: -0.09 }}
-            zoom={13}
-            scrollWheelZoom={false}>
-            attributionControl={true}
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <LocationMarker />
-            <MoveAttribution />
-        </MapContainer>
+        <>
+            <VerifyUser />
+            <MapContainer
+                attributionControl={true}
+                center={{ lat: 51.505, lng: -0.09 }}
+                zoom={13}
+                scrollWheelZoom={false}>
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <LocationMarker />
+                <MoveAttribution />
+            </MapContainer>
+        </>
     )
 }
-
-
-// export default function Home() {
-//     return (
-//         <h1>
-//             Home
-//         </h1>
-//     )
-// }

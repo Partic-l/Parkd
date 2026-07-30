@@ -4,6 +4,7 @@ import Home from './home';
 import Settings from './settings';
 import Social from './social';
 import NavBar from './NavBar';
+import Login from './Login';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/social" element={<Social />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

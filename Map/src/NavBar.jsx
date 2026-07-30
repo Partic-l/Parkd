@@ -6,6 +6,7 @@ export default function NavBar() {
             <Link to="/">Home</Link>
             <Link to="/settings">Settings</Link>
             <Link to="/social">Social</Link>
+            <Link to="/login">Login</Link>
         </nav>
     )
 }
