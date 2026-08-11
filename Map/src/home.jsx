@@ -32,8 +32,8 @@ function VerifyUser() {
     return null
 }
 
-function LocationMarker() {
-    const [position, setPosition] = useState(null)
+function LocationMarker({ position, setPosition }) {
+    // const [position, setPosition] = useState(null)
     let map = useMapEvents({
         locationfound(e) {
             setPosition(e.latlng)
@@ -53,7 +53,27 @@ function LocationMarker() {
 }
 
 
+
+
 export default function Home() {
+    const [position, setPosition] = useState(null)
+    async function handleLeaving() {
+
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+            console.log(error)
+        }
+        else {
+            const { error } = await supabase.from('spots').insert({
+                user_id: user.id,
+                latitude: position.lat,
+                longitude: position.lng
+            })
+            if (error) {
+                console.log(error)
+            }
+        }
+    }
     L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
     L.Icon.Default.prototype.options.iconRetinaUrl = markerIconRetinaUrl;
     L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
@@ -61,6 +81,7 @@ export default function Home() {
     return (
         <>
             <VerifyUser />
+            <button onClick={handleLeaving}>I'm leaving!</button>
             <MapContainer
                 attributionControl={true}
                 center={{ lat: 51.505, lng: -0.09 }}
@@ -70,7 +91,7 @@ export default function Home() {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <LocationMarker />
+                <LocationMarker position={position} setPosition={setPosition} />
                 <MoveAttribution />
             </MapContainer>
         </>
