@@ -52,11 +52,26 @@ function LocationMarker({ position, setPosition }) {
     )
 }
 
-
-
-
 export default function Home() {
     const [position, setPosition] = useState(null)
+    const [spots, setSpots] = useState([])
+    useEffect(() => {
+        const channelA = supabase
+            .channel('schema-db-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'spots',
+                },
+                (payload) => setSpots((current) => [...current, payload.new])
+            )
+            .subscribe((status) => console.log('Subscription status:', status))
+        return () => {
+            supabase.removeChannel(channelA)
+        }
+    }, [])
     async function handleLeaving() {
 
         const { data: { user }, error } = await supabase.auth.getUser();
@@ -74,6 +89,7 @@ export default function Home() {
             }
         }
     }
+
     L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
     L.Icon.Default.prototype.options.iconRetinaUrl = markerIconRetinaUrl;
     L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
@@ -92,6 +108,11 @@ export default function Home() {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <LocationMarker position={position} setPosition={setPosition} />
+                {spots.map((spot) => (
+                    <Marker key={spot.id} position={[spot.latitude, spot.longitude]}>
+                        <Popup>Parking spot available</Popup>
+                    </Marker>
+                ))}
                 <MoveAttribution />
             </MapContainer>
         </>
