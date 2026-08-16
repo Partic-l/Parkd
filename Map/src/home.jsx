@@ -1,5 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
 import { supabase } from './supabaseClient';
@@ -55,6 +55,8 @@ function LocationMarker({ position, setPosition }) {
 export default function Home() {
     const [position, setPosition] = useState(null)
     const [spots, setSpots] = useState([])
+    const [activeSpotId, setActiveSpotId] = useState(null)
+    const activeSpotIdRef = useRef(null)
     useEffect(() => {
         const channelA = supabase
             .channel('schema-db-changes')
@@ -68,24 +70,46 @@ export default function Home() {
                 (payload) => setSpots((current) => [...current, payload.new])
             )
             .subscribe((status) => console.log('Subscription status:', status))
+        const channelB = supabase
+            .channel('requests-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'requests',
+                },
+                (payload) => {
+                    console.log('Request received:', payload.new)
+                    console.log('Active spot ID:', activeSpotIdRef.current)
+                    if (payload.new.spot_id === activeSpotIdRef.current) {
+                        alert('Someone is requesting your parking spot!')
+                    }
+                }
+            )
+            .subscribe((status) => console.log('Subscription status:', status))
         return () => {
             supabase.removeChannel(channelA)
+            supabase.removeChannel(channelB)
         }
     }, [])
+
     async function handleLeaving() {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
             console.log(error)
         }
         else {
-            const { error } = await supabase.from('spots').insert({
+            const { data, error } = await supabase.from('spots').insert({
                 user_id: user.id,
                 latitude: position.lat,
                 longitude: position.lng
-            })
+            }).select()
             if (error) {
                 console.log(error)
             }
+            setActiveSpotId(data[0].id)
+            activeSpotIdRef.current = data[0].id
         }
     }
 
