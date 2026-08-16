@@ -73,7 +73,6 @@ export default function Home() {
         }
     }, [])
     async function handleLeaving() {
-
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
             console.log(error)
@@ -83,6 +82,22 @@ export default function Home() {
                 user_id: user.id,
                 latitude: position.lat,
                 longitude: position.lng
+            })
+            if (error) {
+                console.log(error)
+            }
+        }
+    }
+
+    async function handleRequest(spot_id) {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error) {
+            console.log(error)
+        }
+        else {
+            const { error } = await supabase.from('requests').insert({
+                requester_id: user.id,
+                spot_id: spot_id,
             })
             if (error) {
                 console.log(error)
@@ -110,7 +125,9 @@ export default function Home() {
                 <LocationMarker position={position} setPosition={setPosition} />
                 {spots.map((spot) => (
                     <Marker key={spot.id} position={[spot.latitude, spot.longitude]}>
-                        <Popup>Parking spot available</Popup>
+                        <Popup>
+                            <button onClick={() => handleRequest(spot.id)}>Request Parking Spot</button>
+                        </Popup>
                     </Marker>
                 ))}
                 <MoveAttribution />
