@@ -57,6 +57,7 @@ export default function Home() {
     const [spots, setSpots] = useState([])
     const [activeSpotId, setActiveSpotId] = useState(null)
     const [pendingRequest, setPendingRequest] = useState(null)
+    const [acceptedRequest, setAcceptedRequest] = useState(null)
     const activeSpotIdRef = useRef(null)
     useEffect(() => {
         const channelA = supabase
@@ -89,9 +90,31 @@ export default function Home() {
                 }
             )
             .subscribe((status) => console.log('Subscription status:', status))
+        const channelC = supabase
+            .channel('requests-updates')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'requests',
+                },
+                (payload) => {
+                    console.log('Request updated:', payload.new)
+                    console.log('Status value:', payload.new.status)
+                    console.log('Type:', typeof payload.new.status)
+                    console.log('Equals accepted:', payload.new.status === 'accepted')
+                    if (payload.new.status === 'accepted') {
+                        console.log('Setting accepted request')
+                        setAcceptedRequest(payload.new)
+                    }
+                }
+            )
+            .subscribe((status) => console.log('Subscription status:', status))
         return () => {
             supabase.removeChannel(channelA)
             supabase.removeChannel(channelB)
+            supabase.removeChannel(channelC)
         }
     }, [])
 
@@ -151,6 +174,16 @@ export default function Home() {
         setPendingRequest(null)
     }
 
+    async function handleConfirmHandoff() {
+        const { error } = await supabase.from('requests').
+            update({ status: 'completed' }).
+            eq('id', acceptedRequest.id)
+        if (error) {
+            console.log(error)
+        }
+        setAcceptedRequest(null)
+    }
+
     L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
     L.Icon.Default.prototype.options.iconRetinaUrl = markerIconRetinaUrl;
     L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
@@ -188,6 +221,14 @@ export default function Home() {
                     <p>Someone is requesting your parking spot.</p>
                     <button onClick={() => handleAccept(pendingRequest.id)}>Accept</button>
                     <button onClick={() => handleDecline(pendingRequest.id)}>Decline</button>
+                </div>
+            )}
+
+            {acceptedRequest && (
+                <div className="notification">
+                    <h2>Parking Spot Accepted</h2>
+                    <p>Someone has accepted your request for the parking spot.</p>
+                    <button onClick={handleConfirmHandoff}>Confirm handoff</button>
                 </div>
             )}
         </>
