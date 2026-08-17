@@ -4,7 +4,6 @@ import { useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
 import { supabase } from './supabaseClient';
 import { useNavigate } from 'react-router'
-
 import markerIconUrl from "../node_modules/leaflet/dist/images/marker-icon.png";
 import markerIconRetinaUrl from "../node_modules/leaflet/dist/images/marker-icon-2x.png";
 import markerShadowUrl from "../node_modules/leaflet/dist/images/marker-shadow.png";
@@ -191,7 +190,10 @@ export default function Home() {
     return (
         <>
             <VerifyUser />
-            <button onClick={handleLeaving}>I'm leaving!</button>
+            <button className="leaving-btn" onClick={handleLeaving}>
+                <span>🅿️</span>
+                {/* <span className="leaving-label"></span> */}
+            </button>
             <MapContainer
                 attributionControl={true}
                 center={{ lat: 51.505, lng: -0.09 }}
