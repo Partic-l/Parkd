@@ -56,6 +56,7 @@ export default function Home() {
     const [position, setPosition] = useState(null)
     const [spots, setSpots] = useState([])
     const [activeSpotId, setActiveSpotId] = useState(null)
+    const [pendingRequest, setPendingRequest] = useState(null)
     const activeSpotIdRef = useRef(null)
     useEffect(() => {
         const channelA = supabase
@@ -82,8 +83,8 @@ export default function Home() {
                 (payload) => {
                     console.log('Request received:', payload.new)
                     console.log('Active spot ID:', activeSpotIdRef.current)
-                    if (payload.new.spot_id === activeSpotIdRef.current) {
-                        alert('Someone is requesting your parking spot!')
+                    if (payload.new.spot_id == activeSpotIdRef.current) {
+                        setPendingRequest(payload.new)
                     }
                 }
             )
@@ -114,6 +115,7 @@ export default function Home() {
     }
 
     async function handleRequest(spot_id) {
+        console.log('Requesting spot:', spot_id)
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
             console.log(error)
@@ -127,6 +129,26 @@ export default function Home() {
                 console.log(error)
             }
         }
+    }
+
+    async function handleAccept(request_id) {
+        const { error } = await supabase.from('requests').update({
+            status: 'accepted'
+        }).eq('id', request_id)
+        if (error) {
+            console.log(error)
+        }
+        setPendingRequest(null)
+    }
+
+    async function handleDecline(request_id) {
+        const { error } = await supabase.from('requests').
+            update({ status: 'declined' }).
+            eq('id', request_id)
+        if (error) {
+            console.log(error)
+        }
+        setPendingRequest(null)
     }
 
     L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
@@ -150,12 +172,24 @@ export default function Home() {
                 {spots.map((spot) => (
                     <Marker key={spot.id} position={[spot.latitude, spot.longitude]}>
                         <Popup>
-                            <button onClick={() => handleRequest(spot.id)}>Request Parking Spot</button>
+                            <button onClick={(e) => {
+                                e.stopPropagation()
+                                handleRequest(spot.id)
+                            }}>Request Parking Spot</button>
                         </Popup>
                     </Marker>
                 ))}
                 <MoveAttribution />
             </MapContainer>
+
+            {pendingRequest && (
+                <div className="notification">
+                    <h2>Parking Spot Requested</h2>
+                    <p>Someone is requesting your parking spot.</p>
+                    <button onClick={() => handleAccept(pendingRequest.id)}>Accept</button>
+                    <button onClick={() => handleDecline(pendingRequest.id)}>Decline</button>
+                </div>
+            )}
         </>
     )
 }
