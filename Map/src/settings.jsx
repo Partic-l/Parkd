@@ -1,7 +1,16 @@
 import { supabase } from './supabaseClient';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router'
 
 export default function Settings() {
+    const navigate = useNavigate();
+    const handleSignOut = async () => {
+        const { error } = await supabase.auth.signOut()
+        if (error) console.log('Error signing out:', error)
+        else {
+            navigate('/login')
+        }
+    }
     const [points, setPoints] = useState(0)
     useEffect(() => {
         async function getPoints() {
@@ -25,9 +34,10 @@ export default function Settings() {
         getPoints()
     }, [])
     return (
-        <h1>
+        <div>
             <h1> Settings </h1>
             <p> Points {points} </p>
-        </h1>
+            <button onClick={handleSignOut}> Sign out </button>
+        </div>
     )
 }
