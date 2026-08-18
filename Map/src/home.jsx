@@ -100,6 +100,7 @@ export default function Home() {
                 },
                 (payload) => {
                     console.log('Request updated:', payload.new)
+                    console.log('channelC fired')
                     console.log('Status value:', payload.new.status)
                     console.log('Type:', typeof payload.new.status)
                     console.log('Equals accepted:', payload.new.status === 'accepted')
@@ -177,10 +178,30 @@ export default function Home() {
         const { error } = await supabase.from('requests').
             update({ status: 'completed' }).
             eq('id', acceptedRequest.id)
-        if (error) {
+
+        const { data: spotData } = await supabase
+            .from('spots')
+            .select('user_id')
+            .eq('id', acceptedRequest.spot_id)
+            .single()
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('points')
+            .eq('id', spotData.user_id)
+            .single()
+
+        const { error2 } = await supabase
+            .from('profiles')
+            .update({ points: profile.points + 10 })
+            .eq('id', spotData.user_id)
+
+        if (error || error2) {
             console.log(error)
+            console.log(error2)
         }
         setAcceptedRequest(null)
+
     }
 
     L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
