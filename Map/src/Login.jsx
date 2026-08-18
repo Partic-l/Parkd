@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { supabase } from './supabaseClient';
 import { useNavigate } from "react-router";
+import './login.css'
+import logo from './assets/spaced.svg'
 
 export default function Login() {
     const navigate = useNavigate();
@@ -35,13 +37,17 @@ export default function Login() {
     }
 
     return (
-        <div>
-            <label htmlFor="email">Email:</label>
-            <input type="text" id="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-            <label htmlFor="password">Password:</label>
-            <input type="password" id="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            <button onClick={handleLogin}>Login</button>
-            <button onClick={handleSignUp}>Sign Up</button>
+        <div className="login-container">
+            <div className="logo">
+                <img src={logo} alt="Spaced" width="100" style={{ marginLeft: "10px" }} />
+                <span style={{ fontSize: "50px", marginLeft: "5px" }}>Spaced</span>
+            </div>
+            <div className="login">
+                <input type="text" className="text-input" placeholder="Email" id="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                <input type="password" className="text-input" placeholder="Password" id="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <button className="btn" onClick={handleLogin}>Sign In</button>
+                <p>Don't have an account? <a href="/signup">Sign up!</a></p>
+            </div>
         </div>
     )
 }

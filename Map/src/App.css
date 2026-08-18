@@ -1,3 +1,19 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -210,6 +226,7 @@
 }
 
 .nav-pill {
+  font-family: Arial, Helvetica, sans-serif;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -333,4 +350,22 @@
 
 .leaving-btn:active {
   transform: scale(0.94);
+}
+
+@media (max-width: 480px) {
+  .nav-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  .nav-pill {
+    padding: 8px 12px;
+    gap: 4px;
+  }
+
+  .leaving-btn {
+    width: 48px;
+    height: 48px;
+    left: calc(50% - 180px);
+  }
 }

@@ -1,21 +1,32 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import './App.css'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Home from './home';
 import Settings from './settings';
 import Social from './social';
 import NavBar from './NavBar';
 import Login from './Login';
+import './App.css';
 
-export default function App() {
+function AppLayout() {
+  const location = useLocation()
+  const hideNav = location.pathname === '/login'
+
   return (
-    <BrowserRouter>
-      <NavBar />
+    <>
+      {!hideNav && <NavBar />}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/social" element={<Social />} />
         <Route path="/login" element={<Login />} />
       </Routes>
+    </>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout />
     </BrowserRouter>
-  );
+  )
 }
