@@ -36,11 +36,13 @@ function LocationMarker({ position, setPosition }) {
     let map = useMapEvents({
         locationfound(e) {
             setPosition(e.latlng)
-            map.flyTo(e.latlng, map.getZoom())
+            console.log('Location found:', e.latlng)
+            map.setView(e.latlng, map.getZoom())
         },
     })
 
     useEffect(() => {
+        console.log('Locating...')
         map.locate()
     }, []);
 

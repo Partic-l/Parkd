@@ -17,7 +17,7 @@ function AppLayout() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/settings" element={<Settings />} />
-        <Route path="/social" element={<Social />} />
+        {/* <Route path="/social" element={<Social />} /> */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Routes>
