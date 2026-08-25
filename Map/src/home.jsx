@@ -254,7 +254,7 @@ export default function Home() {
                 {spots.map((spot) => (
                     <Marker key={spot.id} position={[spot.latitude, spot.longitude]}>
                         <Popup>
-                            <button onClick={(e) => {
+                            <button className="btn" id="request-btn" onClick={(e) => {
                                 e.stopPropagation()
                                 handleRequest(spot.id)
                             }}>Request Parking Spot</button>
@@ -269,8 +269,8 @@ export default function Home() {
                 <div className="notification">
                     <h2>Parking Spot Requested</h2>
                     <p>Someone is requesting your parking spot.</p>
-                    <button onClick={() => handleAccept(pendingRequest.id)}>Accept</button>
-                    <button onClick={() => handleDecline(pendingRequest.id)}>Decline</button>
+                    <button className="btn" onClick={() => handleAccept(pendingRequest.id)}>Accept</button>
+                    <button className="btn" onClick={() => handleDecline(pendingRequest.id)}>Decline</button>
                 </div>
             )}
 
@@ -278,7 +278,7 @@ export default function Home() {
                 <div className="notification">
                     <h2>Parking Spot Accepted</h2>
                     <p>Someone has accepted your request for the parking spot.</p>
-                    <button onClick={handleConfirmHandoff}>Confirm handoff</button>
+                    <button className="btn" onClick={handleConfirmHandoff}>Confirm handoff</button>
                 </div>
             )}
         </>

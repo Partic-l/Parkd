@@ -289,23 +289,7 @@ body {
   line-height: 1;
 }
 
-.notification {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  text-align: center;
-  color: black;
-}
 
-.notification h2 {
-  color: black;
-}
 
 /* ── Leaving Button ── */
 .leaving-btn {
@@ -368,4 +352,26 @@ body {
     height: 48px;
     left: calc(50% - 180px);
   }
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(20, 20, 30, 0.92);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: white;
+}
+
+.leaflet-popup-tip {
+  background: rgba(20, 20, 30, 0.92);
+}
+
+.leaflet-popup-content button {
+  background: rgba(255, 255, 255, 0.12);
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  width: 100%;
 }
