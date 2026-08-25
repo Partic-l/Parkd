@@ -92,7 +92,7 @@ export default function Settings() {
                     <button className="btn" onClick={() => navigate("/settings/car")}>Car Info</button>
                 </div>
                 <div style={{ display: "flex", flexDirection: "row", gap: "5px", alignItems: "center" }}>
-                    <input className="text-input" type="range" min="0" max="1000" value={radius} step="10" onChange={(e) => setRadius(e.target.value)}></input>
+                    <input className="text-input" type="range" min="100" max="1000" value={radius} step="10" onChange={(e) => setRadius(e.target.value)}></input>
                     <p style={{ margin: 0 }}> {radius} meters </p>
                 </div>
                 <button className="btn" onClick={handleSaveRadius}> Save Radius </button>

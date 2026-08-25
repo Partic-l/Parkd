@@ -375,3 +375,76 @@ body {
   cursor: pointer;
   width: 100%;
 }
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.leaflet-interactive {
+  /* animation: pulse 2s ease-in-out infinite; */
+}
+
+/* ── Ripple / Sonar animation ── */
+.ripple-wrapper {
+  position: relative;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.ripple-ring {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  border-width: 10px;
+  border-style: solid;
+  border-color: rgba(99, 179, 237, 0.8);
+  /* starting value, overridden by keyframe */
+  transform: translate(-50%, -50%) scale(0);
+  animation: ripple-expand 3s ease-out infinite;
+}
+
+.ripple-ring--2 {
+  animation-delay: 5s;
+}
+
+.ripple-ring--3 {
+  animation-delay: 5s;
+}
+
+@keyframes ripple-expand {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    border-color: rgba(99, 179, 237, 0.8);
+  }
+
+  50% {
+    border-color: rgba(160, 215, 255, 0.4);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    border-color: rgba(220, 240, 255, 0);
+  }
+}
+
+.ripple-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #63b3ed;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
+}

@@ -1,6 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from 'react-leaflet'
-import { useState, useEffect, useRef } from 'react'
-import { useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, Circle } from 'react-leaflet'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import 'leaflet/dist/leaflet.css'
 import './shared.css'
 import { supabase } from './supabaseClient';
@@ -32,8 +31,43 @@ function VerifyUser() {
     return null
 }
 
+function SonarRipple({ position, radius }) {
+    const map = useMap()
+    const [diameterPx, setDiameterPx] = useState(0)
+
+    function calcDiameter() {
+        const centerPt = map.latLngToContainerPoint(L.latLng(position))
+        const edgePt = map.latLngToContainerPoint(
+            L.latLng(position.lat + radius / 111320, position.lng)
+        )
+        return Math.round(centerPt.distanceTo(edgePt) * 2)
+    }
+
+    useMapEvents({
+        zoomend() { setDiameterPx(calcDiameter()) },
+    })
+
+    useEffect(() => {
+        setDiameterPx(calcDiameter())
+    }, [position, radius])
+
+    const icon = useMemo(() => L.divIcon({
+        className: '',
+        html: `<div class="ripple-wrapper">
+            <div class="ripple-ring" style="width:${diameterPx}px;height:${diameterPx}px"></div>
+            <div class="ripple-ring ripple-ring--2" style="width:${diameterPx}px;height:${diameterPx}px"></div>
+            <div class="ripple-ring ripple-ring--3" style="width:${diameterPx}px;height:${diameterPx}px"></div>
+            <div class="ripple-dot"></div>
+        </div>`,
+        iconSize: [0, 0],
+        iconAnchor: [0, 0],
+    }), [diameterPx])
+
+    if (!position || diameterPx === 0) return null
+    return <Marker position={position} icon={icon} interactive={false} />
+}
+
 function LocationMarker({ position, setPosition }) {
-    // const [position, setPosition] = useState(null)
     let map = useMapEvents({
         locationfound(e) {
             setPosition(e.latlng)
@@ -47,11 +81,7 @@ function LocationMarker({ position, setPosition }) {
         map.locate()
     }, []);
 
-    return position === null ? null : (
-        <Marker position={position}>
-            <Popup>You are here</Popup>
-        </Marker>
-    )
+    return null
 }
 
 export default function Home() {
@@ -261,7 +291,8 @@ export default function Home() {
                         </Popup>
                     </Marker>
                 ))}
-                {position && <Circle center={position} radius={radius} pathOptions={{ color: '#63b3ed', fillColor: '#63b3ed', fillOpacity: 0.1 }} />}
+                {position && <Circle center={position} radius={radius} pathOptions={{ stroke: false, fillColor: '#63b3ed', fillOpacity: 0.1 }} />}
+                {position && <SonarRipple position={position} radius={radius} />}
                 <MoveAttribution />
             </MapContainer>
 
