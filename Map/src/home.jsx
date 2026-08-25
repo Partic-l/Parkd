@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from 'react-leaflet'
 import { useState, useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
@@ -52,6 +52,7 @@ function LocationMarker({ position, setPosition }) {
 }
 
 export default function Home() {
+    const [radius, setRadius] = useState(500)
     const [position, setPosition] = useState(null)
     const [spots, setSpots] = useState([])
     const [activeSpotId, setActiveSpotId] = useState(null)
@@ -116,6 +117,28 @@ export default function Home() {
             supabase.removeChannel(channelB)
             supabase.removeChannel(channelC)
         }
+    }, [])
+
+    useEffect(() => {
+        async function getRadius() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) {
+                console.log(error)
+            }
+            else {
+                const { data, error } = await supabase.from('profiles')
+                    .select('radius')
+                    .eq('id', user.id)
+                    .single()
+                if (error) {
+                    console.log(error)
+                }
+                else {
+                    setRadius(data.radius)
+                }
+            }
+        }
+        getRadius()
     }, [])
 
     async function handleLeaving() {
@@ -235,6 +258,7 @@ export default function Home() {
                         </Popup>
                     </Marker>
                 ))}
+                {position && <Circle center={position} radius={radius} pathOptions={{ color: '#63b3ed', fillColor: '#63b3ed', fillOpacity: 0.1 }} />}
                 <MoveAttribution />
             </MapContainer>
 
