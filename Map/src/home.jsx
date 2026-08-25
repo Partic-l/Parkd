@@ -2,6 +2,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from 're
 import { useState, useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'
+import './shared.css'
 import { supabase } from './supabaseClient';
 import { useNavigate } from 'react-router'
 import markerIconUrl from "../node_modules/leaflet/dist/images/marker-icon.png";

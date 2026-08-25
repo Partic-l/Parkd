@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router'
+import './shared.css'
 
 export default function Settings() {
     const [radius, setRadius] = useState(500)
@@ -10,6 +11,8 @@ export default function Settings() {
     const [carModel, setCarModel] = useState('')
     const [carColor, setCarColor] = useState('')
     const [licensePlate, setLicensePlate] = useState('')
+    const [points, setPoints] = useState(0)
+    const [email, setEmail] = useState('')
     const navigate = useNavigate();
     const handleSignOut = async () => {
         const { error } = await supabase.auth.signOut()
@@ -18,7 +21,6 @@ export default function Settings() {
             navigate('/login')
         }
     }
-    const [points, setPoints] = useState(0)
     useEffect(() => {
         async function getInfo() {
             const { data: { user }, error } = await supabase.auth.getUser();
@@ -42,6 +44,7 @@ export default function Settings() {
                     setCarModel(data.car_model)
                     setCarColor(data.car_color)
                     setLicensePlate(data.license_plate)
+                    setEmail(user.email)
                 }
             }
         }
@@ -71,21 +74,30 @@ export default function Settings() {
     }
 
     return (
-        <div>
-            <h1> Settings </h1>
-            <p> Points {points} </p>
-            <div className="settings-inputs-container">
-                <input className="settings-input" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)}></input>
-                <input className="settings-input" placeholder="Phone Number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}></input>
-                <input className="settings-input" placeholder="Car Make" value={carMake} onChange={(e) => setCarMake(e.target.value)}></input>
-                <input className="settings-input" placeholder="Car Model" value={carModel} onChange={(e) => setCarModel(e.target.value)}></input>
-                <input className="settings-input" placeholder="Car Color" value={carColor} onChange={(e) => setCarColor(e.target.value)}></input>
-                <input className="settings-input" placeholder="License Plate" value={licensePlate} onChange={(e) => setLicensePlate(e.target.value)}></input>
+        <div className="settings-container">
+
+            <div className="settings-card">
+                <div className="profile-header">
+                    <div className="avatar">
+                        <span>{name ? name[0].toUpperCase() : '?'}</span>
+                    </div>
+                    <div className="profile-info">
+                        <h2>{name || 'Your Name'}</h2>
+                        <p>{email}</p>
+                    </div>
+                    <p className="points" style={{ margin: "5px" }}> Points: {points} </p>
+                </div>
+                <div className="more-settings">
+                    <button className="btn" onClick={() => navigate("/settings/personal")}>Personal Info</button>
+                    <button className="btn" onClick={() => navigate("/settings/car")}>Car Info</button>
+                </div>
+                <div style={{ display: "flex", flexDirection: "row", gap: "5px", alignItems: "center" }}>
+                    <input className="text-input" type="range" min="0" max="1000" value={radius} step="10" onChange={(e) => setRadius(e.target.value)}></input>
+                    <p style={{ margin: 0 }}> {radius} meters </p>
+                </div>
+                <button className="btn" onClick={handleSaveRadius}> Save Radius </button>
+                <button className="btn" onClick={handleSignOut} style={{ backgroundColor: "maroon", marginTop: "10px" }}> Sign out </button>
             </div>
-            <button onClick={handleSaveprofile}> Save Profile </button>
-            <button onClick={handleSignOut}> Sign out </button>
-            <input type="range" min="0" max="10000" value={radius} step="10" onChange={(e) => setRadius(e.target.value)}></input>
-            <button onClick={handleSaveRadius}> Save Radius </button>
         </div>
     )
 }

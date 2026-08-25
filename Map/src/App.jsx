@@ -5,6 +5,8 @@ import Social from './social';
 import NavBar from './NavBar';
 import Login from './Login';
 import Signup from './Signup';
+import Personal from './personal';
+import Car from './car';
 import './App.css';
 
 function AppLayout() {
@@ -17,6 +19,8 @@ function AppLayout() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/settings/personal" element={<Personal />} />
+        <Route path="/settings/car" element={<Car />} />
         {/* <Route path="/social" element={<Social />} /> */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
