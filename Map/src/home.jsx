@@ -91,6 +91,8 @@ export default function Home() {
     const [activeSpotId, setActiveSpotId] = useState(null)
     const [pendingRequest, setPendingRequest] = useState(null)
     const [acceptedRequest, setAcceptedRequest] = useState(null)
+    const [currentUserId, setCurrentUserId] = useState(null)
+    const currentUserIdRef = useRef(null)
     const activeSpotIdRef = useRef(null)
     useEffect(() => {
         const channelA = supabase
@@ -103,6 +105,20 @@ export default function Home() {
                     table: 'spots',
                 },
                 (payload) => setSpots((current) => [...current, payload.new])
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'spots',
+                },
+                (payload) => {
+                    console.log('Spot updated:', payload.new)
+                    if (payload.new.active === false) {
+                        setSpots((current) => current.filter(spot => spot.id !== payload.new.id))
+                    }
+                }
             )
             .subscribe((status) => console.log('Subscription status:', status))
         const channelB = supabase
@@ -138,23 +154,51 @@ export default function Home() {
                     console.log('Status value:', payload.new.status)
                     console.log('Type:', typeof payload.new.status)
                     console.log('Equals accepted:', payload.new.status === 'accepted')
-                    if (payload.new.status === 'accepted') {
-                        console.log('Setting accepted request')
+                    if (payload.new.status === 'accepted' /*&& payload.new.requester_id !== currentUserIdRef.current*/) {
                         setAcceptedRequest(payload.new)
+                        if (payload.new.status === 'accepted') {
+                            console.log('requester_id:', payload.new.requester_id)
+                            console.log('currentUserIdRef:', currentUserIdRef.current)
+                            console.log('are they different:', payload.new.requester_id !== currentUserIdRef.current)
+                        }
+                    }
+                    if (payload.new.status === 'completed') {
+                        setSpots((current) => current.filter(spot => spot.id !== payload.new.spot_id))
                     }
                 }
             )
             .subscribe((status) => console.log('Subscription status:', status))
+        // const channelD = supabase
+        //     .channel('spots-updates')
+        //     .on(
+        //         'postgres_changes',
+        //         {
+        //             event: 'UPDATE',
+        //             schema: 'public',
+        //             table: 'spots',
+        //         },
+        //         (payload) => {
+        //             console.log('Spot updated:', payload.new)
+        //             if (payload.new.active === false) {
+        //                 setSpots((current) => current.filter(spot => spot.id !== payload.new.id))
+        //             }
+        //         }
+        //     )
+        //     .subscribe()
         return () => {
             supabase.removeChannel(channelA)
             supabase.removeChannel(channelB)
             supabase.removeChannel(channelC)
+            // supabase.removeChannel(channelD)
         }
     }, [])
 
     useEffect(() => {
         async function getRadius() {
+            // const { data: { user } } = await supabase.auth.getUser()
             const { data: { user }, error } = await supabase.auth.getUser();
+            setCurrentUserId(user.id)
+            currentUserIdRef.current = user.id
             if (error) {
                 console.log(error)
             }
@@ -172,6 +216,24 @@ export default function Home() {
             }
         }
         getRadius()
+    }, [])
+
+    useEffect(() => {
+        async function getSpots() {
+            const { data, error } = await supabase
+                .from('spots')
+                .select('*')
+                .eq('active', true)
+            console.log('Spots data:', data)
+            console.log('Spots error:', error)
+            if (error) {
+                console.log(error)
+
+            } else {
+                setSpots(data)
+            }
+        }
+        getSpots()
     }, [])
 
     async function handleLeaving() {
@@ -252,9 +314,19 @@ export default function Home() {
             .update({ points: profile.points + 10 })
             .eq('id', spotData.user_id)
 
-        if (error || error2) {
+        const { error3 } = await supabase
+            .from('spots')
+            .delete()
+            .eq('id', acceptedRequest.spot_id)
+
+        console.log('Delete error:', error3)
+        console.log('Deleting spot ID:', acceptedRequest.spot_id)
+        setSpots((current) => current.filter(spot => spot.id !== acceptedRequest.spot_id))
+
+        if (error || error2 || error3) {
             console.log(error)
             console.log(error2)
+            console.log(error3)
         }
         setAcceptedRequest(null)
 
