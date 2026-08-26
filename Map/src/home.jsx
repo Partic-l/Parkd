@@ -154,7 +154,7 @@ export default function Home() {
                     console.log('Status value:', payload.new.status)
                     console.log('Type:', typeof payload.new.status)
                     console.log('Equals accepted:', payload.new.status === 'accepted')
-                    if (payload.new.status === 'accepted' /*&& payload.new.requester_id !== currentUserIdRef.current*/) {
+                    if (payload.new.status === 'accepted' && payload.new.requester_id !== currentUserIdRef.current) {
                         setAcceptedRequest(payload.new)
                         if (payload.new.status === 'accepted') {
                             console.log('requester_id:', payload.new.requester_id)
@@ -377,6 +377,7 @@ export default function Home() {
                 </div>
             )}
 
+            {console.log('acceptedRequest state:', acceptedRequest)}
             {acceptedRequest && (
                 <div className="notification">
                     <h2>Parking Spot Accepted</h2>
