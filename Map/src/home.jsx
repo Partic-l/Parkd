@@ -291,7 +291,7 @@ export default function Home() {
                         </Popup>
                     </Marker>
                 ))}
-                {position && <Circle center={position} radius={radius} pathOptions={{ stroke: false, fillColor: '#63b3ed', fillOpacity: 0.1 }} />}
+                {/* {position && <Circle center={position} radius={radius} pathOptions={{ stroke: false, fillColor: '#63b3ed', fillOpacity: 0.1 }} />} */}
                 {position && <SonarRipple position={position} radius={radius} />}
                 <MoveAttribution />
             </MapContainer>

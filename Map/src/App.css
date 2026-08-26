@@ -420,7 +420,7 @@ body {
 }
 
 .ripple-ring--3 {
-  animation-delay: 5s;
+  animation-delay: 5.5s;
 }
 
 @keyframes ripple-expand {
