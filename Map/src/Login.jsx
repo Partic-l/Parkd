@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from './supabaseClient';
 import { useNavigate } from "react-router";
 import './login.css'
+import './shared.css'
 import logo from './assets/spaced.svg'
 
 export default function Login() {
@@ -40,7 +41,7 @@ export default function Login() {
         <div className="login-container">
             <div className="logo">
                 <img src={logo} alt="Spaced" width="100" style={{ marginLeft: "10px" }} />
-                <span style={{ fontSize: "50px", marginLeft: "5px" }}>Spaced</span>
+                <span style={{ fontSize: "50px", marginLeft: "5px" }}>Parkd</span>
             </div>
             <div className="login">
                 <input type="text" className="text-input" placeholder="Email" id="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
