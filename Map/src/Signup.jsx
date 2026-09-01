@@ -27,7 +27,7 @@ export default function Signup() {
         <div className="login-container">
             <div className="logo">
                 <img src={logo} alt="Spaced" width="100" style={{ marginLeft: "10px" }} />
-                <span style={{ fontSize: "50px", marginLeft: "5px" }}>Spaced</span>
+                <span style={{ fontSize: "50px", marginLeft: "5px" }}>Parkd</span>
             </div>
             <div className="login">
                 <input type="text" className="text-input" placeholder="Email" id="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} />
