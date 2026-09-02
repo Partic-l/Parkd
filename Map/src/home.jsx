@@ -104,7 +104,17 @@ export default function Home() {
                     schema: 'public',
                     table: 'spots',
                 },
-                (payload) => setSpots((current) => [...current, payload.new])
+                (payload) => {
+                    async function attachName() {
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('name')
+                            .eq('id', payload.new.user_id)
+                            .single()
+                        setSpots((current) => [...current, { ...payload.new, profiles: profile }])
+                    }
+                    attachName()
+                }
             )
             .on(
                 'postgres_changes',
@@ -222,7 +232,7 @@ export default function Home() {
         async function getSpots() {
             const { data, error } = await supabase
                 .from('spots')
-                .select('*')
+                .select('*, profiles(name)')
                 .eq('active', true)
             console.log('Spots data:', data)
             console.log('Spots error:', error)
@@ -356,10 +366,16 @@ export default function Home() {
                 {spots.map((spot) => (
                     <Marker key={spot.id} position={[spot.latitude, spot.longitude]}>
                         <Popup>
-                            <button className="btn" id="request-btn" onClick={(e) => {
-                                e.stopPropagation()
-                                handleRequest(spot.id)
-                            }}>Request Parking Spot</button>
+                            {/* {console.log('spot:', spot.profiles.name)} */}
+                            {spot.user_id !== currentUserIdRef.current && (
+                                <button className="btn" id="request-btn" onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleRequest(spot.id)
+                                }}>Request {spot.profiles?.name || 'Someone'}'s Parking Spot</button>
+                            )}
+                            {spot.user_id === currentUserIdRef.current && (
+                                <p style={{ color: 'white' }}>This is your spot</p>
+                            )}
                         </Popup>
                     </Marker>
                 ))}
