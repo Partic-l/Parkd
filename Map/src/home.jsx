@@ -164,13 +164,10 @@ export default function Home() {
                     console.log('Status value:', payload.new.status)
                     console.log('Type:', typeof payload.new.status)
                     console.log('Equals accepted:', payload.new.status === 'accepted')
-                    if (payload.new.status === 'accepted' && payload.new.requester_id !== currentUserIdRef.current) {
+                    if (payload.new.status === 'accepted' &&
+                        payload.new.requester_id !== currentUserIdRef.current &&
+                        payload.new.spot_id == activeSpotIdRef.current) {
                         setAcceptedRequest(payload.new)
-                        if (payload.new.status === 'accepted') {
-                            console.log('requester_id:', payload.new.requester_id)
-                            console.log('currentUserIdRef:', currentUserIdRef.current)
-                            console.log('are they different:', payload.new.requester_id !== currentUserIdRef.current)
-                        }
                     }
                     if (payload.new.status === 'completed') {
                         setSpots((current) => current.filter(spot => spot.id !== payload.new.spot_id))
