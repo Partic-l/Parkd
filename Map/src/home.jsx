@@ -247,16 +247,30 @@ export default function Home() {
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error) {
             console.log(error)
+            return
         }
-        else {
-            const { data, error } = await supabase.from('spots').insert({
-                user_id: user.id,
-                latitude: position.lat,
-                longitude: position.lng
-            }).select()
-            if (error) {
-                console.log(error)
-            }
+
+        const { data: existingSpot } = await supabase
+            .from('spots')
+            .select('id')
+            .eq('user_id', user.id)
+            .eq('active', true)
+            .single()
+
+        if (existingSpot) {
+            console.log('User already has an active spot')
+            return
+        }
+
+        const { data, error: insertError } = await supabase.from('spots').insert({
+            user_id: user.id,
+            latitude: position.lat,
+            longitude: position.lng
+        }).select()
+
+        if (insertError) {
+            console.log(insertError)
+        } else {
             setActiveSpotId(data[0].id)
             activeSpotIdRef.current = data[0].id
         }
