@@ -94,6 +94,18 @@ export default function Home() {
     const [currentUserId, setCurrentUserId] = useState(null)
     const currentUserIdRef = useRef(null)
     const activeSpotIdRef = useRef(null)
+
+    function getDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371000
+        const dLat = (lat2 - lat1) * Math.PI / 180
+        const dLng = (lng2 - lng1) * Math.PI / 180
+        const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) *
+            Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) ** 2
+        const c = 2 * Math.asin(Math.sqrt(a))
+        return R * c
+    }
     useEffect(() => {
         const channelA = supabase
             .channel('schema-db-changes')
@@ -374,22 +386,24 @@ export default function Home() {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
                 <LocationMarker position={position} setPosition={setPosition} />
-                {spots.map((spot) => (
-                    <Marker key={spot.id} position={[spot.latitude, spot.longitude]}>
-                        <Popup>
-                            {/* {console.log('spot:', spot.profiles.name)} */}
-                            {spot.user_id !== currentUserIdRef.current && (
-                                <button className="btn" id="request-btn" onClick={(e) => {
-                                    e.stopPropagation()
-                                    handleRequest(spot.id)
-                                }}>Request {spot.profiles?.name || 'Someone'}'s Parking Spot</button>
-                            )}
-                            {spot.user_id === currentUserIdRef.current && (
-                                <p style={{ color: 'white' }}>This is your spot</p>
-                            )}
-                        </Popup>
-                    </Marker>
-                ))}
+                {spots
+                    .filter(spot => position && getDistance(position.lat, position.lng, spot.latitude, spot.longitude) <= radius)
+                    .map((spot) => (
+                        <Marker key={spot.id} position={[spot.latitude, spot.longitude]}>
+                            <Popup>
+                                {/* {console.log('spot:', spot.profiles.name)} */}
+                                {spot.user_id !== currentUserIdRef.current && (
+                                    <button className="btn" id="request-btn" onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleRequest(spot.id)
+                                    }}>Request {spot.profiles?.name || 'Someone'}'s Parking Spot</button>
+                                )}
+                                {spot.user_id === currentUserIdRef.current && (
+                                    <p style={{ color: 'white' }}>This is your spot</p>
+                                )}
+                            </Popup>
+                        </Marker>
+                    ))}
                 {/* {position && <Circle center={position} radius={radius} pathOptions={{ stroke: false, fillColor: '#63b3ed', fillOpacity: 0.1 }} />} */}
                 {position && <SonarRipple position={position} radius={radius} />}
                 <MoveAttribution />
